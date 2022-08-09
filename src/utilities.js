@@ -1,5 +1,6 @@
-const {readFile} = require("fs")
+const {readFile, createReadStream} = require("fs")
 const { extname } = require("path")
+const { hrtime } = require("process")
 const mimetypes = require("./mimetypes")
 
 exports.sendText = function(req, res, msg, status = 200) {
@@ -32,4 +33,29 @@ exports.redirect = function(res, url) {
 	res.statusCode = 301
 	res.setHeader("Location", url)
 	res.end()
+}
+
+exports.streamFile = function(req, res, filename) {
+	const extension = extname(filename)
+	const mimetype = mimetypes[extension].type
+	const stream = createReadStream(filename)
+	stream.on("error", function(err) {
+		console.log(err)
+		exports.sendJSON(req, res, {error: {msg: "Something went terribly wrong sir"}}, 404)
+		return
+	})
+	res.statusCode = 200
+	res.setHeader("Content-type", mimetype)
+	stream.pipe(res)
+}
+
+exports.logger = function(req, res) {
+	const tminus = hrtime.bigint()
+	let date = new Date().toLocaleString()
+	let requestBody = ` ${req.method} ${req.url}`
+	res.on("finish", function() {
+		const duration = hrtime.bigint() - tminus
+		let status = ` ${res.statusCode} ${res.statusMessage}`
+		console.log(date + requestBody + status + " process time: " + Number(duration) / 1000000 + "ms");
+	})
 }
