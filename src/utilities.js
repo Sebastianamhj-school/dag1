@@ -1,5 +1,5 @@
 const {readFile, createReadStream} = require("fs");
-const { extname } = require("path");
+const { extname, resolve } = require("path");
 const { hrtime } = require("process");
 const mimetypes = require("./mimetypes");
 
@@ -60,4 +60,45 @@ exports.logger = function(req, res ) {
 		console.log(logStr);
 
 	})
+}
+
+exports.getData = function (req) {
+	return new Promise((resolve, reject) => {
+
+		let body = "";
+
+		req.on("error", () => {
+			reject(new Error('Error of a kind'))
+		})
+
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		
+		req.on("end", () => {
+
+			try {
+				console.log(JSON.parse(body));
+				resolve(JSON.parse(body));
+
+			} catch (error) {
+				console.log("Error: wrong input");
+				reject(new Error("Error: wrong input"))
+			}
+		});
+
+	})
+}
+
+exports.validateJsonSchema = function (json, schema) {
+	if(Object.keys(json).length != schema.length) {
+		return false;
+	}
+
+	for (const prop in json) {
+		if (!schema.includes(prop)) {
+			return false;
+		}
+	}
+	return true;
 }

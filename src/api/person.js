@@ -1,12 +1,14 @@
-const { sendJSON } = require("../utilities")
+const { sendJSON, getData, validateJsonSchema } = require("../utilities")
+const currentRoute = "/api/person";
+const say = "Chill dude"; 
 
 module.exports = {
 	GET:{
 		handler : function(req, res, param){
 			const response = {
-				route: "/api/person",
+				route: currentRoute,
 				method: req.method,
-				msg: "its a dude"
+				says: say
 			}
 
 			if (param)
@@ -19,22 +21,56 @@ module.exports = {
 		}
 	},
 	POST:{
-		handler : function(req, res){
+		handler : function(req, res, param){
+
 			const response = {
-				route: "/api/person",
+				route: currentRoute,
 				method: req.method,
-				msg: "Post person"
+				says: `Post ${say}`
 			}
 
-			sendJSON(req, res, response, 200);
+			if (param)
+			{
+				response.error = "Params not allowed on POST";
+				response.says = null;
+				sendJSON(req,res,response, 405);
+			}
+
+			
+			getData(req)
+				.then((input) => {
+					const schema = ["Person", "Says"];
+
+					if (input == "error") {	
+						response.error = "Error happened";
+						response.says = null;
+						sendJSON(req,res, response, 405);
+					}
+					
+					if (!validateJsonSchema(input, schema)) {
+						response.error = "Schema is not a match";
+						response.says = null;
+						sendJSON(req, res, response, 405);
+						return;
+					}
+
+					response.body = input;
+					sendJSON(req, res, response, 200);
+
+				})
+				.catch(function() {
+					response.error = "Error happened";
+					response.says = null;
+					sendJSON(req,res, response, 405);
+				})
 		}
 	},
 	PUT:{
 		handler : function(req, res, param){
 			const response = {
-				route: "/api/person",
+				route: currentRoute,
 				method: req.method,
-				msg: "PUT person"
+				says: `PUT ${say}`
 			}
 
 			if (param)
@@ -49,9 +85,9 @@ module.exports = {
 	DELETE:{
 		handler : function(req, res, param){
 			const response = {
-				route: "/api/person",
+				route: currentRoute,
 				method: req.method,
-				msg: "DELETE person"
+				says: `DELETE ${say}`
 			}
 
 			if (param)

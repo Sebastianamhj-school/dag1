@@ -1,12 +1,14 @@
-const { sendJSON } = require("../utilities")
+const { sendJSON, getData, validateJsonSchema } = require("../utilities")
+const currentRoute = "/api/duck";
+const say = "Quack"; 
 
 module.exports = {
 	GET:{
 		handler : function(req, res, param){
 			const response = {
-				route: "/api/duck",
+				route: currentRoute,
 				method: req.method,
-				says: "Quack"
+				says: say
 			}
 
 			if (param)
@@ -18,23 +20,57 @@ module.exports = {
 			sendJSON(req, res, response, 200);
 		}
 	},
-    POST:{
-		handler : function(req, res){
+	POST:{
+		handler : function(req, res, param){
+
 			const response = {
-				route: "/api/duck",
+				route: currentRoute,
 				method: req.method,
-				says: "POST Quack"
+				says: `Post ${say}`
 			}
 
-			sendJSON(req, res, response, 200);
+			if (param)
+			{
+				response.error = "Params not allowed on POST";
+				response.says = null;
+				sendJSON(req,res,response, 405);
+			}
+
+			
+			getData(req)
+				.then((input) => {
+					const schema = ["Duck", "Says"];
+
+					if (input == "error") {	
+						response.error = "Error happened";
+						response.says = null;
+						sendJSON(req,res, response, 405);
+					}
+					
+					if (!validateJsonSchema(input, schema)) {
+						response.error = "Schema is not a match";
+						response.says = null;
+						sendJSON(req, res, response, 405);
+						return;
+					}
+
+					response.body = input;
+					sendJSON(req, res, response, 200);
+
+				})
+				.catch(function() {
+					response.error = "Error happened";
+					response.says = null;
+					sendJSON(req,res, response, 405);
+				})
 		}
 	},
-    PUT:{
+	PUT:{
 		handler : function(req, res, param){
 			const response = {
-				route: "/api/duck",
+				route: currentRoute,
 				method: req.method,
-				says: "PUT Quack"
+				says: `PUT ${say}`
 			}
 
 			if (param)
@@ -46,12 +82,12 @@ module.exports = {
 			sendJSON(req, res, response, 200);
 		}
 	},
-    DELETE:{
+	DELETE:{
 		handler : function(req, res, param){
 			const response = {
-				route: "/api/duck",
+				route: currentRoute,
 				method: req.method,
-				says: "DELETE Quack"
+				says: `DELETE ${say}`
 			}
 
 			if (param)
@@ -63,5 +99,4 @@ module.exports = {
 			sendJSON(req, res, response, 200);
 		}
 	},
-
 }
