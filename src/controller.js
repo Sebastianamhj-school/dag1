@@ -16,7 +16,7 @@ module.exports = function(req, res) {
 
 	const endpoint = url.pathname
 	if (endpoint === "/") {
-		redirect(res, "https://localhost:6969/html/index.html")
+		redirect(res, "http://localhost:6969/html/index.html")
 		return
 	}
 	const siteRegex = /^\/(html|css|js|img)\/[\w-]+\.(html|css|js|jpe?g)/
