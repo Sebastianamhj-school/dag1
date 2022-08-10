@@ -1,3 +1,4 @@
+const { Console } = require("console")
 const {readFile, createReadStream} = require("fs")
 const { extname } = require("path")
 const { hrtime } = require("process")
@@ -58,4 +59,37 @@ exports.logger = function(req, res) {
 		let status = ` ${res.statusCode} ${res.statusMessage}`
 		console.log(date + requestBody + status + " process time: " + Number(duration) / 1000000 + "ms");
 	})
+}
+
+exports.getData = function(req) {
+	return new Promise((resolve, reject) => {
+		let dataStr = ""
+		req.on("data", function(chunk) {
+			dataStr += chunk
+		})
+		req.on("end", function() {
+			console.log(dataStr);
+			try {
+				resolve(JSON.parse(dataStr))
+			} catch (error) {
+				console.log("oi");
+				reject(new Error("fail"))
+				
+			}
+		})
+	})
+}
+
+exports.validateJsonSchema = function (json, schema) {
+	if (Object.keys(json).length != schema.length) {
+		return false
+	}
+
+	for (const property in json) {
+		if (!schema.includes(property)) {
+			return false
+		}
+	}
+
+	return true
 }
