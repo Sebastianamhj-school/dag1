@@ -1,8 +1,7 @@
 const { sendJSON, getData, validateJsonSchema } = require("../utilities")
 const { db } = require('../database/dao')
 const PersonRepo = require("../repository/personRepository")
-const date = require('date-and-time')
-/* PersonRepo.createTable(); */
+
 
 const currentRoute = "/api/person";
 const say = "Chill dude"; 
