@@ -1,5 +1,6 @@
 const { sendJSON, getData, validateJsonSchema } = require("../utilities")
 const currentRoute = "/api/duck"
+const DuckRepo = require("../db/duck_repository")
 
 module.exports = {
 	GET: {
@@ -11,9 +12,24 @@ module.exports = {
 			}
 
 			if (param) {
-				response.id = param
+				try {
+					DuckRepo.getById(param.split("/").pop())
+					.then((data) => {
+						response.duck = data
+						sendJSON(req, res, response)
+					})
+					return
+				} catch (error) {
+					sendJSON(req, res, {error: "Something went wrong"}, 405)
+				}
+				
 			}
-			sendJSON(req, res, response)
+			DuckRepo.getAll().then((data) => {
+				response.ducks = data
+				sendJSON(req, res, response)
+			}).catch((err) => {
+				sendJSON(req, res, {error: "Something went wrong"}, 404)
+			})
 		}
 	},
 	POST: {
@@ -29,7 +45,9 @@ module.exports = {
 					sendJSON(req, res, {error: {msg: "Your schema is not the correct one sir"}}, 405)
 					return
 				}
-				sendJSON(req, res, {route: currentRoute, method: req.method, says: "Duckdididoooooo", input})
+				DuckRepo.create(input.Color, input.Name).then((data) => {
+					sendJSON(req, res, {msg: `Duck successfully entered into the world of tables with id: ${data.id}`})
+				})
 			}).catch(function() {
 				sendJSON(req, res, {error: {msg: "You shall send something valid sir"}}, 405)
 			})
@@ -51,7 +69,10 @@ module.exports = {
 					return
 				}
 
-				sendJSON(req, res, {route: currentRoute, method: req.method, says: "Fucking Duckididoo", input})
+				const duck = {id: input.id, Color: input.Color, Name: input.Name}
+				DuckRepo.update(duck).then((data) => {
+					sendJSON(req, res, {msg: `Duck with id: ${input.id} has been successfully updated`})
+				})
 			}).catch(function() {
 				sendJSON(req, res, {error: {msg: "You shall send something valid sir"}}, 405)
 			})
@@ -67,10 +88,17 @@ module.exports = {
 			const response = {
 				route: currentRoute,
 				method: req.method,
-				says: "You shot him dead, he tried to fly away, oh oh, and awful sound, oh oh, you shot the dinner down",
+				says: "You shot him dead, he tried to fly away, oh oh, an awful sound, oh oh, you shot the dinner down",
 				param: param
 			}
-			sendJSON(req, res, response)
+			try {
+				DuckRepo.delete(String(param.split('/').pop())).then((data) => {
+					sendJSON(req, res, response)
+				})
+				return
+			} catch (error) {
+				sendJSON(req, res, {error: {msg: "Cat not found, maybe it ran away already"}}, 404)
+			}
 		}
 	},
 }

@@ -4,6 +4,7 @@ const { extname } = require("path")
 const { hrtime } = require("process")
 const mimetypes = require("./mimetypes")
 
+
 exports.sendText = function(req, res, msg, status = 200) {
 	res.statusCode = status
 	res.setHeader("Content-type", "text/plain")
@@ -68,7 +69,6 @@ exports.getData = function(req) {
 			dataStr += chunk
 		})
 		req.on("end", function() {
-			console.log(dataStr);
 			try {
 				resolve(JSON.parse(dataStr))
 			} catch (error) {
@@ -93,3 +93,4 @@ exports.validateJsonSchema = function (json, schema) {
 
 	return true
 }
+
