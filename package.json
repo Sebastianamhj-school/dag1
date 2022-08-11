@@ -10,7 +10,10 @@
   "author": "is me",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.7.2",
+    "date-and-time": "^2.4.1",
     "nodemon": "^2.0.19",
-    "sqlite": "^4.1.2"
+    "sql.js": "^1.7.0",
+    "sqlite3": "^5.0.11"
   }
 }

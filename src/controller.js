@@ -41,5 +41,5 @@ module.exports = function(req, res) {
 	}
 
 
-	sendJSON(req, res, {msg: "we fucking mingin ey", endpoint: endpoint}, 404)
+	sendJSON(req, res, {msg: "Error", endpoint: endpoint}, 404)
 }

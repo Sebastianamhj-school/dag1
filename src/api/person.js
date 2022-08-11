@@ -1,6 +1,12 @@
 const { sendJSON, getData, validateJsonSchema } = require("../utilities")
+const { db } = require('../database/dao')
+const PersonRepo = require("../repository/personRepository")
+const date = require('date-and-time')
+/* PersonRepo.createTable(); */
+
 const currentRoute = "/api/person";
 const say = "Chill dude"; 
+
 
 module.exports = {
 	GET:{
@@ -11,13 +17,26 @@ module.exports = {
 				says: say
 			}
 
-			if (param)
-			{
-				response.id = param;
-
+			if (param) {
+				try {
+					PersonRepo.getById(param.split("/").pop())
+					.then((data) => {
+						response.person = data
+						sendJSON(req, res, response)
+					})
+					return
+				} catch (error) {
+					sendJSON(req, res, {error: "Something went wrong"}, 405)
+				}
+				
 			}
 
-			sendJSON(req, res, response, 200);
+			PersonRepo.getAll().then((data) => {
+				response.persons = data
+				sendJSON(req, res, response)
+			}).catch((err) => {
+				sendJSON(req, res, {error: "Something went wrong"}, 404)
+			})
 		}
 	},
 	POST:{
@@ -39,8 +58,8 @@ module.exports = {
 			
 			getData(req)
 				.then((input) => {
-					const schema = ["Person", "Says"];
-
+					const schema = ["name", "email", "note", "isStudent"];
+					
 					if (input == "error") {	
 						response.error = "Error happened";
 						response.says = null;
@@ -54,17 +73,20 @@ module.exports = {
 						return;
 					}
 
-					response.body = input;
-					sendJSON(req, res, response, 200);
-
+					PersonRepo.create(input.name, input.email, input.note, input.isStudent).then((data) => {
+						
+						sendJSON(req, res, {msg: `person was created with id: ${data.id}`})
+					})
 				})
 				.catch(function() {
+					
 					response.error = "Error happened";
 					response.says = null;
 					sendJSON(req,res, response, 405);
 				})
 		}
 	},
+
 	PUT:{
 		handler : function(req, res, param){
 			const response = {
@@ -73,13 +95,32 @@ module.exports = {
 				says: `PUT ${say}`
 			}
 
-			if (param)
+			if (!param)
 			{
-				response.id = param;
+				sendJSON(req, res, {error: {msg: "u need to enter a parameter"}}, 405)
+				return
 
 			}
 
-			sendJSON(req, res, response, 200);
+			getData(req)
+			.then((input) => {
+				const schema = ["name", "email", "note", "isStudent"]
+
+				if (!validateJsonSchema(input, schema)) {
+					sendJSON(req, res, {error: {msg: "Schema is wrong"}}, 405)
+					return
+				}
+
+				
+				const personTemp = {name: input.name, email: input.email, note: input.note, isStudent: input.isStudent, id: param.split("/").pop()};
+			
+				PersonRepo.update(personTemp).then((data) => {
+					sendJSON(req, res, {msg: `person with id: ${param.split("/").pop()} updated`})
+				})
+			}).catch(function() {
+				sendJSON(req, res, {error: {msg: "Error happened"}}, 405)
+			})
+
 		}
 	},
 	DELETE:{
@@ -87,16 +128,23 @@ module.exports = {
 			const response = {
 				route: currentRoute,
 				method: req.method,
-				says: `DELETE ${say}`
+				says: `Person is now gone`,
+				id: param
 			}
 
-			if (param)
-			{
-				response.id = param;
-
+			if (!param) {
+				sendJSON(req, res, {error: {msg: "A parameter is missing"}}, 405)
+				return
 			}
 
-			sendJSON(req, res, response, 200);
+			try {
+				PersonRepo.delete(String(param.split('/').pop())).then((data) => {
+					sendJSON(req, res, response)
+				})
+				return
+			} catch (error) {
+				sendJSON(req, res, {error: {msg: "Person does not exist"}}, 404)
+			}
 		}
 	},
 }
