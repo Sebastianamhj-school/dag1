@@ -2,6 +2,9 @@ const { sendJSON, getData, validateJsonSchema } = require("../utilities")
 const currentRoute = "/api/cat";
 const say = "Miauw"; 
 
+
+/* Needs CRUD */
+
 module.exports = {
 	GET:{
 		handler : function(req, res, param){
