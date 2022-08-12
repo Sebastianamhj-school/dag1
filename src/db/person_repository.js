@@ -39,7 +39,7 @@ class PersonRepository {
             SET fullname = ?,
             email = ?,
 			student = ?,
-			note = ?,
+			note = ?
             WHERE id = ?`,
             [fullname, email, student, note, id]
         )

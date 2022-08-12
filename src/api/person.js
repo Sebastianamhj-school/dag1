@@ -70,8 +70,8 @@ module.exports = {
 			getData(req)
 			.then((input) => {
 				const schema = ["id", "fullname", "email", "student", "note"]
-				const types = ["string", "string", "boolean", "string"]
-				const values = [input.fullname, input.email, input.student, input.note]
+				const types = ["number", "string", "string", "boolean", "string"]
+				const values = [input.id, input.fullname, input.email, input.student, input.note]
 
 				if (!validateJsonSchema(input, schema)) {
 					sendJSON(req, res, {error: {msg: "Your schema is not the correct one sir"}}, 500)
