@@ -82,7 +82,6 @@ exports.getData = function (req) {
 				resolve(JSON.parse(body));
 
 			} catch (error) {
-				console.log("Error: wrong input");
 				reject(new Error("Error: wrong input"))
 			}
 		});

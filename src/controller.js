@@ -2,8 +2,6 @@ const cnf = require("./config/serverconfig.json");
 const {sendText, sendJSON, sendFile, redirect, logger} = require("./utilities.js")
 const hostPath = cnf.host + ":" + cnf.port
 const api = {
-	"cat" : require("./api/cat"),
-	"duck" : require("./api/duck"),
 	"person" : require("./api/person")
 };
 
@@ -41,5 +39,5 @@ module.exports = function(req, res) {
 	}
 
 
-	sendJSON(req, res, {msg: "Error", endpoint: endpoint}, 404)
+	sendJSON(req, res, {msg: "Error in request", endpoint: endpoint}, 400)
 }

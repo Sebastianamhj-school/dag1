@@ -8,6 +8,13 @@ const hostPath = cnf.host + ":" + cnf.port
 
 const server = http.createServer(controller);
 
+const runSql = 0;
+
+if (runSql) {
+    PersonRepo.createTable();
+    PersonRepo.createsSomeData();
+}
+ 
 server.listen(6969);
 
 console.log("Server executed at " + hostPath);
