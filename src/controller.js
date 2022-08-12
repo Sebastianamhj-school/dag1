@@ -1,10 +1,10 @@
-const { cat } = require("./api/cat");
 const cnf = require("./config/serverconfig.json");
 
 const {sendText, sendJSON, sendFile, redirect, logger, streamFile} = require("./utilities.js")
 const api = {
 	"cat": require("./api/cat"),
 	"duck": require("./api/duck"),
+	"person": require("./api/person")
 }
 
 const hostPath = cnf.host + ":" + cnf.port

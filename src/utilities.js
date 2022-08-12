@@ -1,5 +1,6 @@
 const { Console } = require("console")
 const {readFile, createReadStream} = require("fs")
+const { type } = require("os")
 const { extname } = require("path")
 const { hrtime } = require("process")
 const mimetypes = require("./mimetypes")
@@ -93,4 +94,15 @@ exports.validateJsonSchema = function (json, schema) {
 
 	return true
 }
+
+exports.validateDataType = function (values, types) {
+	for (let i = 0; i < values.length; i++) {
+		if(typeof values[i] != types[i]) {
+			
+			return false
+		}
+		
+	}
+	return true
+} 
 
